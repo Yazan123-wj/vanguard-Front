@@ -1,26 +1,115 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Brand */
+  --color-vermilion: #fb4616;
+  --color-ink: #0a0a0a;
+  --color-paper: #ffffff;
+  --color-mist: #f1f1f1;
+
+  /* Derived ink scale */
+  --color-ink-900: #0a0a0a;
+  --color-ink-800: #141414;
+  --color-ink-700: #1f1f1f;
+  --color-ink-600: #2e2e2e;
+  --color-ink-400: #6b6b6b;
+  --color-ink-200: #b4b4b4;
+
+  /* Derived vermilion scale */
+  --color-vermilion-600: #d63a0f;
+  --color-vermilion-400: #fd6b42;
+  --color-vermilion-100: #ffe4db;
+
+  /* Alpha utilities */
+  --color-line: rgb(255 255 255 / 0.08);
+  --color-line-strong: rgb(255 255 255 / 0.16);
+  --color-veil: rgb(10 10 10 / 0.72);
+
+  /* Motion */
+  --ease-vanguard: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 0.3s;
+  --duration-base: 0.6s;
+  --duration-slow: 1.2s;
+
+  /* Layout */
+  --spacing-gutter: clamp(1.25rem, 4vw, 4rem);
+  --z-index-loader: 100;
+
+  /* Fluid type scale — display → caption */
+  /* Hero display — large, but room left for body + trusted-by under it */
+  --text-display: clamp(2.5rem, 7.2vw, 6.25rem);
+  --text-heading-1: clamp(2.25rem, 5vw + 0.75rem, 5rem);
+  --text-heading-2: clamp(1.75rem, 3.5vw + 0.5rem, 3.25rem);
+  --text-heading-3: clamp(1.375rem, 2vw + 0.5rem, 2.25rem);
+  --text-body-lg: clamp(1.0625rem, 0.5vw + 0.95rem, 1.125rem);
+  --text-body: clamp(1rem, 0.25vw + 0.95rem, 1.0625rem);
+  --text-caption: clamp(0.75rem, 0.15vw + 0.7rem, 0.875rem);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@utility font-display {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@utility font-body {
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    @apply h-full scroll-smooth bg-ink text-paper;
+  }
+
+  body {
+    @apply min-h-full font-body antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-vermilion);
+    outline-offset: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Home → Projects curtain handoff */
+.projects-cta-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.projects-cta-transition__ink {
+  position: absolute;
+  inset: 0;
+  background: #050505;
+}
+
+
+/* SplitText `mask: lines` wrappers clip descenders (g, y, p). */
+.hero-headline *:has(> .hero-line) {
+  padding-bottom: 0.22em;
+  margin-bottom: -0.1em;
+}
+
+.hero-headline .hero-line {
+  padding-bottom: 0.06em;
+}
+
+/* Lock document scroll while the spherical gallery owns input. */
+html.gallery-lock,
+html.gallery-lock body {
+  overflow: hidden;
+  height: 100%;
+  overscroll-behavior: none;
 }
