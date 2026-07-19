@@ -1,0 +1,6 @@
+1:I[39756,["/_next/static/chunks/17f170g5cmwh6.js","/_next/static/chunks/14mrh2-p_w84d.js","/_next/static/chunks/2y29ad0ht4s55.js","/_next/static/chunks/0f7wo6z4_3xql.js"],"LoadingBoundaryProvider"]
+2:"$Sreact.fragment"
+3:I[39756,["/_next/static/chunks/17f170g5cmwh6.js","/_next/static/chunks/14mrh2-p_w84d.js","/_next/static/chunks/2y29ad0ht4s55.js","/_next/static/chunks/0f7wo6z4_3xql.js"],"default"]
+4:I[37457,["/_next/static/chunks/17f170g5cmwh6.js","/_next/static/chunks/14mrh2-p_w84d.js","/_next/static/chunks/2y29ad0ht4s55.js","/_next/static/chunks/0f7wo6z4_3xql.js"],"default"]
+5:[]
+0:{"rsc":["$","$L1",null,{"loading":[["$","main","l",{"className":"min-h-dvh bg-paper","style":{"paddingTop":"calc(64px + var(--spacing-gutter) + 2.5rem)"},"children":["$","div",null,{"className":"mx-auto w-full max-w-[920px] px-gutter","children":[["$","div",null,{"className":"h-3 w-24 animate-pulse bg-mist"}],["$","div",null,{"className":"mt-10 h-4 w-64 animate-pulse bg-mist"}],["$","div",null,{"className":"mt-6 h-16 w-full max-w-md animate-pulse bg-mist"}],["$","div",null,{"className":"mt-10 aspect-[2/1] animate-pulse bg-mist"}]]}]}],[],[]],"children":["$","$2","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","template":["$","$L4",null,{}]}]]}]}],"isPartial":false,"staleTime":300,"varyParams":"$W5","buildId":"j21h2JKjNcFMEmX5Ma-S8"}

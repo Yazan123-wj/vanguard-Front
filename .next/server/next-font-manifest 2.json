@@ -1,0 +1,39 @@
+{
+  "app": {
+    "[project]/src/app/_not-found/page": [
+      "static/media/display-s.p.2c0y96ae70xfx.woff2",
+      "static/media/body-s.p.2c0y96ae70xfx.woff2"
+    ],
+    "[project]/src/app/blogs/[slug]/page": [
+      "static/media/display-s.p.2c0y96ae70xfx.woff2",
+      "static/media/body-s.p.2c0y96ae70xfx.woff2"
+    ],
+    "[project]/src/app/blogs/article/page": [
+      "static/media/display-s.p.2c0y96ae70xfx.woff2",
+      "static/media/body-s.p.2c0y96ae70xfx.woff2"
+    ],
+    "[project]/src/app/blogs/page": [
+      "static/media/display-s.p.2c0y96ae70xfx.woff2",
+      "static/media/body-s.p.2c0y96ae70xfx.woff2"
+    ],
+    "[project]/src/app/contact/page": [
+      "static/media/display-s.p.2c0y96ae70xfx.woff2",
+      "static/media/body-s.p.2c0y96ae70xfx.woff2"
+    ],
+    "[project]/src/app/page": [
+      "static/media/display-s.p.2c0y96ae70xfx.woff2",
+      "static/media/body-s.p.2c0y96ae70xfx.woff2"
+    ],
+    "[project]/src/app/projects/[slug]/page": [
+      "static/media/display-s.p.2c0y96ae70xfx.woff2",
+      "static/media/body-s.p.2c0y96ae70xfx.woff2"
+    ],
+    "[project]/src/app/projects/page": [
+      "static/media/display-s.p.2c0y96ae70xfx.woff2",
+      "static/media/body-s.p.2c0y96ae70xfx.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pages": {},
+  "pagesUsingSizeAdjust": false
+}
