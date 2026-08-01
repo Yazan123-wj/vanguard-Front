@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../styles/mobile.css";
 
 @theme {
   /* Brand */
@@ -67,6 +68,11 @@
     outline: 2px solid var(--color-vermilion);
     outline-offset: 2px;
   }
+
+  ::selection {
+    background: var(--color-vermilion);
+    color: var(--color-paper);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -95,6 +101,43 @@
   background: #050505;
 }
 
+/* Service card → detail mist curtain */
+.service-card-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.service-card-transition__accent {
+  position: absolute;
+  inset: 0;
+  background: var(--color-vermilion);
+}
+
+.service-card-transition__mist {
+  position: absolute;
+  inset: 0;
+  background: var(--color-mist);
+}
+
+.service-card-transition__label {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--color-ink);
+}
+
 
 /* SplitText `mask: lines` wrappers clip descenders (g, y, p). */
 .hero-headline *:has(> .hero-line) {
@@ -111,5 +154,12 @@ html.gallery-lock,
 html.gallery-lock body {
   overflow: hidden;
   height: 100%;
+  overscroll-behavior: none;
+}
+
+/* Lock document scroll while the staggered menu is open (all viewports). */
+html.menu-open,
+html.menu-open body {
+  overflow: hidden;
   overscroll-behavior: none;
 }

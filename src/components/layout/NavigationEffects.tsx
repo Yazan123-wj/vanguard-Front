@@ -13,6 +13,9 @@ function clearGallerySideEffects() {
   document.querySelectorAll('.projects-cta-transition').forEach((node) => {
     node.remove();
   });
+  document.querySelectorAll('.service-card-transition').forEach((node) => {
+    node.remove();
+  });
 }
 
 /**

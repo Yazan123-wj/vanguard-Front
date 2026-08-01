@@ -1,35 +1,8 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
-import { NAVBAR_HEIGHT } from '@/lib/constants';
-
-const OFFICES = [
-  {
-    city: 'Vietnam',
-    address: 'Midtown, Phu My Hung, Ho Chi Minh City',
-    phone: '+84 91 9922034',
-  },
-  {
-    city: 'China',
-    address: '193 Lockart Road, Hong Kong',
-    phone: '+86 186 16222144',
-  },
-  {
-    city: 'Japan',
-    address: '6 Chome–6–2 Kojimachi, Tokyo',
-    phone: '+81 90 59480287',
-  },
-  {
-    city: 'France',
-    address: '64–66 Rue des Archives, 75003 Paris, France',
-    phone: '+33 56 3264235',
-  },
-] as const;
-
-const SOCIAL = [
-  { label: 'Facebook', href: '#' },
-  { label: 'LinkedIn', href: '#' },
-  { label: 'Instagram', href: '#' },
-] as const;
+import { getFooter } from '@/lib/api';
+import { NAVBAR_HEIGHT, SITE } from '@/lib/constants';
 
 function ClockIcon() {
   return (
@@ -51,7 +24,9 @@ function ClockIcon() {
 /**
  * Light sticky footer revealed as the Notes curtain lifts away.
  */
-export function SiteFooter() {
+export async function SiteFooter() {
+  const { offices, social, contactEmail } = await getFooter();
+
   return (
     <footer
       data-site-footer
@@ -74,7 +49,7 @@ export function SiteFooter() {
           </h2>
 
           <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-x-10 sm:gap-y-12">
-            {OFFICES.map((office) => (
+            {offices.map((office) => (
               <div key={office.city}>
                 <div className="text-ink-600">
                   <ClockIcon />
@@ -100,15 +75,15 @@ export function SiteFooter() {
               Contact us
             </p>
             <a
-              href="mailto:hello@vanguard.studio"
+              href={`mailto:${contactEmail}`}
               className="font-display mt-2 inline-block text-[clamp(1.15rem,2.5vw,1.65rem)] font-semibold tracking-[-0.02em] underline decoration-ink/25 underline-offset-4 transition-colors hover:text-vermilion hover:decoration-vermilion"
             >
-              hello@vanguard.studio
+              {contactEmail}
             </a>
           </div>
 
           <ul className="flex flex-col gap-1.5 md:min-w-[8rem]">
-            {SOCIAL.map((item) => (
+            {social.map((item) => (
               <li key={item.label}>
                 <Link
                   href={item.href}
@@ -120,9 +95,20 @@ export function SiteFooter() {
             ))}
           </ul>
 
-          <p className="text-[0.8rem] text-ink-600 md:text-right">
-            © {new Date().getFullYear()} All rights reserved. Vanguard.
-          </p>
+          <div className="flex flex-col gap-3 md:items-end">
+            <Link href="/" aria-label={SITE.name}>
+              <Image
+                src={SITE.logo}
+                alt={SITE.name}
+                width={160}
+                height={18}
+                className="h-4 w-auto"
+              />
+            </Link>
+            <p className="text-[0.8rem] text-ink-600 md:text-right">
+              © {new Date().getFullYear()} All rights reserved.
+            </p>
+          </div>
         </div>
       </div>
     </footer>

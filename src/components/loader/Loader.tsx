@@ -17,6 +17,7 @@ import { useLoadProgress } from '@/components/loader/useLoadProgress';
 import { useLenis } from '@/hooks/useLenis';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { gsap, useGSAP } from '@/lib/gsap';
+import { useSiteAudio } from '@/providers/AudioProvider';
 import { useLoader } from '@/providers/LoaderProvider';
 
 const STAGGER = CYCLE_DURATION / RING_COUNT;
@@ -31,6 +32,7 @@ function msUntilBlock11Leading(elapsedSec: number) {
 export function Loader() {
   const { isLoading, skipFullLoader, complete, dispatchHandoff, setProgress } =
     useLoader();
+  const { unlock: unlockAudio } = useSiteAudio();
   const prefersReducedMotion = useReducedMotion();
   const lenis = useLenis();
 
@@ -81,17 +83,19 @@ export function Loader() {
     setVisible(false);
     document.body.style.overflow = '';
     lenis?.start();
+    unlockAudio();
     complete();
 
     const main = document.querySelector('main');
     if (main instanceof HTMLElement) {
       main.focus({ preventScroll: true });
     }
-  }, [complete, lenis]);
+  }, [complete, lenis, unlockAudio]);
 
   const runSessionFade = useCallback(() => {
     if (exitStartedRef.current || !layerRef.current) return;
     exitStartedRef.current = true;
+    unlockAudio();
 
     gsap.set(layerRef.current, { pointerEvents: 'none' });
 
@@ -101,7 +105,7 @@ export function Loader() {
       ease: 'vanguard.out',
       onComplete: finishLoader,
     });
-  }, [finishLoader]);
+  }, [finishLoader, unlockAudio]);
 
   const runReducedMotionExit = useCallback(() => {
     if (exitStartedRef.current || !layerRef.current || !ringContainerRef.current) {
@@ -109,6 +113,7 @@ export function Loader() {
     }
 
     exitStartedRef.current = true;
+    unlockAudio();
     gsap.set(layerRef.current, { pointerEvents: 'none' });
     gsap.set(ringContainerRef.current, { opacity: 0.4 });
 
@@ -124,7 +129,7 @@ export function Loader() {
       { opacity: 0, duration: 0.2, ease: 'vanguard.out' },
       '<',
     );
-  }, [finishLoader]);
+  }, [finishLoader, unlockAudio]);
 
   const runFullExit = useCallback(() => {
     if (exitStartedRef.current || !layerRef.current || !ringContainerRef.current) {
@@ -132,6 +137,7 @@ export function Loader() {
     }
 
     exitStartedRef.current = true;
+    unlockAudio();
 
     chaseTimelinesRef.current.forEach((timeline) => timeline.kill());
     chaseTimelinesRef.current = [];
@@ -178,7 +184,7 @@ export function Loader() {
     // Fire the hero handoff ~300ms before the curtain finishes so the
     // entrance overlaps the exit instead of running sequentially.
     timeline.call(dispatchHandoff, [], 'curtain+=0.9');
-  }, [dispatchHandoff, finishLoader]);
+  }, [dispatchHandoff, finishLoader, unlockAudio]);
 
   useGSAP(
     () => {
@@ -282,6 +288,9 @@ export function Loader() {
       aria-valuemax={100}
       aria-valuenow={progressLabel}
       className="fixed inset-0 z-loader"
+      // First interaction during load unlocks ambient audio (default ON).
+      onPointerDown={unlockAudio}
+      onClick={unlockAudio}
     >
       <div
         ref={layerRef}

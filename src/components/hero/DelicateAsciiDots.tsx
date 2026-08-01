@@ -350,17 +350,25 @@ const DelicateAsciiDots = ({
     document.addEventListener('visibilitychange', onVisibility);
 
     window.addEventListener('resize', resizeCanvas);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mouseup', handleMouseUp);
+
+    const canHover = window.matchMedia(
+      '(hover: hover) and (pointer: fine)',
+    ).matches;
+    if (canHover) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mousedown', handleMouseDown);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
 
     syncLoop();
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('mouseup', handleMouseUp);
+      if (canHover) {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mousedown', handleMouseDown);
+        window.removeEventListener('mouseup', handleMouseUp);
+      }
       observer.disconnect();
       document.removeEventListener('visibilitychange', onVisibility);
 

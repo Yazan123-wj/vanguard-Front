@@ -59,6 +59,7 @@ function Chip({
       type="button"
       onClick={onClick}
       aria-pressed={selected}
+      data-contact-chip
       className={`rounded-md border px-3.5 py-2 font-mono text-[10px] tracking-[0.14em] uppercase transition-colors ${
         selected
           ? 'border-paper bg-paper text-ink'
@@ -226,12 +227,14 @@ export function ContactForm() {
           <button
             type="button"
             onClick={reset}
+            data-contact-chip
             className="rounded-md border border-white/25 px-5 py-2.5 font-mono text-[10px] tracking-[0.14em] text-ink-200 uppercase transition-colors hover:border-white/45 hover:text-paper"
           >
             Cancel
           </button>
           <button
             type="submit"
+            data-contact-submit
             className="inline-flex items-center gap-2 rounded-md bg-[#E8B4A2] px-5 py-2.5 font-mono text-[10px] tracking-[0.14em] text-ink uppercase transition-opacity hover:opacity-90"
           >
             Send inquiry

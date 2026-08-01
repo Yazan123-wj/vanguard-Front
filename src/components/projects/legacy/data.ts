@@ -8,7 +8,13 @@ export type GalleryProject = {
   image: string;
   /** Extra images shown on the project detail page (optional) */
   images?: string[];
-  theme: { bg: string; text: string; border: string };
+  /** Left column — larger lead copy in the detail overlay. */
+  description?: string;
+  /** Right column — smaller overview copy in the detail overlay. */
+  overview?: string;
+  /** External “Visit live site” URL (from the admin). */
+  externalUrl?: string;
+  theme?: { bg: string; text: string; border: string };
 };
 
 export const projects: GalleryProject[] = [

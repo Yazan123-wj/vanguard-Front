@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 import { HeroAtmosphere } from '@/components/hero/HeroAtmosphere';
-import { FEATURED_NOTE } from '@/components/sections/notes.data';
+import { getBlogsPageNotes } from '@/lib/api';
 import { NAVBAR_HEIGHT } from '@/lib/constants';
 
 function ArrowIcon() {
@@ -22,9 +22,11 @@ function ArrowIcon() {
 
 /**
  * Blogs hero curtain — lifts over the sticky article grid.
+ * Featured essay = most recently published post.
  */
-export function BlogsHero() {
-  const featured = FEATURED_NOTE;
+export async function BlogsHero() {
+  const { featured } = await getBlogsPageNotes();
+  if (!featured) return null;
 
   return (
     <section
@@ -53,12 +55,15 @@ export function BlogsHero() {
             className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vermilion focus-visible:ring-offset-4 focus-visible:ring-offset-ink"
           >
             <div className="aspect-[16/9] overflow-hidden bg-ink-800 md:aspect-[2/1]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={featured.image}
-                alt=""
-                className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-              />
+              {featured.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={featured.image}
+                  alt=""
+                  data-hover-media
+                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                />
+              ) : null}
             </div>
 
             <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-[10px] tracking-[0.16em] uppercase md:mt-8">

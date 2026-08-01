@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 import initFluidCursor from '@/components/hero/fluidCursor';
+import { useCanHover } from '@/hooks/useCanHover';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 /**
@@ -13,10 +14,11 @@ import { useReducedMotion } from '@/hooks/useReducedMotion';
 export function HeroFluidCursor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const prefersReducedMotion = useReducedMotion();
+  const canHover = useCanHover();
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || prefersReducedMotion) return;
+    if (!canvas || prefersReducedMotion || !canHover) return;
 
     let cleanup: (() => void) | undefined;
     let cancelled = false;
@@ -36,9 +38,9 @@ export function HeroFluidCursor() {
       window.clearTimeout(timer);
       cleanup?.();
     };
-  }, [prefersReducedMotion]);
+  }, [prefersReducedMotion, canHover]);
 
-  if (prefersReducedMotion) return null;
+  if (prefersReducedMotion || !canHover) return null;
 
   return (
     <canvas

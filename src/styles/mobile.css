@@ -1,0 +1,313 @@
+/*
+ * Mobile + touch-only overrides.
+ * Desktop rules live elsewhere — do not put desktop styles here.
+ */
+
+/* ── Viewport hygiene (phones) ─────────────────────────────────────────── */
+@media (max-width: 767px) {
+  html,
+  body {
+    overflow-x: clip;
+  }
+
+  /* Menu open: lock document scroll even when Lenis is absent */
+  html.menu-open,
+  html.menu-open body {
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
+  }
+
+  /* Partner line must wrap on narrow screens */
+  [data-partner] [data-partner-motion] h2 span {
+    white-space: normal;
+  }
+
+  [data-partner] [data-partner-motion] h2 {
+    font-size: clamp(2rem, 11vw, 2.75rem);
+  }
+
+  /* Hero eyebrow — allow wrap + slightly tighter tracking */
+  [data-hero-eyebrow] {
+    white-space: normal;
+    letter-spacing: 0.12em;
+    text-align: center;
+    max-width: 22rem;
+  }
+
+  /* Comfortable tap targets for form chips / submit */
+  [data-contact-chip],
+  [data-contact-submit] {
+    min-height: 44px;
+  }
+
+  /* ≥16px inputs avoid iOS focus zoom */
+  form input,
+  form textarea {
+    font-size: 16px;
+  }
+
+  /* Slightly tighter hero top padding under the fixed menu */
+  [data-hero] > div {
+    padding-top: calc(4rem + var(--spacing-gutter) + 2.25rem) !important;
+    padding-bottom: 4rem;
+  }
+
+  /*
+   * Home mist block — clean mobile flow (no sticky/curtain overlap).
+   * Hero → Partner → Services.
+   */
+  [data-home-mist] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  [data-home-mist] [data-hero] {
+    order: 1;
+    position: relative;
+    z-index: auto;
+    margin-top: 0 !important;
+    border-radius: 0 !important;
+    overflow: hidden;
+  }
+
+  [data-home-mist] [data-partner] {
+    order: 2;
+    position: relative;
+    z-index: auto;
+    min-height: 0;
+    padding-top: 4.5rem;
+    padding-bottom: 2.5rem;
+    background: #f1f1f1;
+    border-radius: 0 !important;
+    box-shadow: none;
+    /* Clear any leftover desktop scrub fade */
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+  }
+
+  [data-home-mist] [data-partner-motion] {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  [data-home-mist] [data-curtain-spacer] {
+    display: none;
+  }
+
+  [data-home-mist] #services {
+    order: 3;
+    position: relative;
+    z-index: auto;
+    background: #f1f1f1;
+  }
+
+  /* Service cards: vertical list (desktop pin stays on ≥768) */
+  [data-stack-cards] [data-stack-stage] {
+    height: auto !important;
+    min-height: 0;
+    display: flex !important;
+    flex-direction: column;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+  }
+
+  [data-stack-cards] [data-stack-deck] {
+    position: relative !important;
+    height: auto !important;
+    max-width: 100% !important;
+    padding-top: 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  [data-stack-cards] [data-stack-card] {
+    position: relative !important;
+    top: auto !important;
+    inset: auto !important;
+    width: 100% !important;
+    transform: none !important;
+  }
+
+  /*
+   * About → Projects → Notes → Footer: square, sequential, no overlap.
+   */
+  [data-home-about] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  [data-home-about] [data-about-reveal] {
+    order: 1;
+    position: relative;
+    z-index: auto;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding-top: 5rem;
+    padding-bottom: 2.5rem;
+  }
+
+  [data-home-about] [data-about-reveal] .grid {
+    grid-template-columns: 1fr;
+  }
+
+  [data-home-about] [data-projects-cta] {
+    order: 2;
+    position: relative;
+    z-index: auto;
+    margin-top: 0 !important;
+    height: 100dvh;
+    min-height: 100dvh;
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+    border-radius: 0 !important;
+    overflow: hidden;
+    box-shadow: none;
+  }
+
+  [data-home-about] [data-projects-cta] h2 {
+    font-size: clamp(2rem, 8.5vw, 2.75rem);
+  }
+
+  [data-home-about] [data-curtain-spacer] {
+    display: none;
+  }
+
+  [data-home-footer] {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: auto;
+    margin-top: 0;
+    background: #0a0a0a;
+  }
+
+  [data-home-footer] [data-notes] {
+    order: 1;
+    position: relative;
+    z-index: auto;
+    margin-top: 0 !important;
+    border-radius: 0 !important;
+    overflow: hidden;
+    background: #0a0a0a;
+    box-shadow: none;
+  }
+
+  [data-home-footer] [data-site-footer] {
+    order: 2;
+    position: relative;
+    z-index: auto;
+    min-height: 0 !important;
+    padding-top: calc(4.5rem + var(--spacing-gutter)) !important;
+    padding-bottom: 3rem !important;
+    background: #ffffff;
+    border-radius: 0 !important;
+    box-shadow: none;
+  }
+
+  [data-home-footer] [data-curtain-spacer] {
+    display: none;
+  }
+
+  /* Blogs page: same curtain flatten */
+  [data-blogs-top] [data-curtain-spacer] {
+    display: none;
+  }
+
+  [data-blogs-top] [data-blogs-hero] {
+    margin-top: 0 !important;
+    border-radius: 0 !important;
+    overflow: visible;
+  }
+
+  [data-blogs-footer] {
+    display: flex;
+    flex-direction: column;
+    background: #f1f1f1;
+  }
+
+  [data-blogs-footer] [data-blogs-articles] {
+    order: 1;
+    position: relative;
+    z-index: auto;
+    margin-top: 0 !important;
+    border-radius: 0 !important;
+    overflow: visible;
+  }
+
+  [data-blogs-footer] [data-site-footer] {
+    order: 2;
+    position: relative;
+    z-index: auto;
+    min-height: 0 !important;
+    padding-top: calc(4.5rem + var(--spacing-gutter)) !important;
+    padding-bottom: 3rem !important;
+    background: #ffffff;
+  }
+
+  [data-blogs-footer] [data-curtain-spacer] {
+    display: none;
+  }
+}
+
+/* ── Staggered menu mobile polish ──────────────────────────────────────── */
+@media (max-width: 767px) {
+  .staggered-menu-wrapper.fixed-wrapper {
+    width: 100%;
+    height: 100dvh;
+  }
+
+  .staggered-menu-header {
+    padding: 1.25rem 1.25rem;
+  }
+
+  .sm-toggle {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.35rem 0.15rem;
+    justify-content: flex-end;
+  }
+
+  .sm-panel-itemLabel {
+    font-size: clamp(2rem, 9vw, 3.25rem);
+  }
+
+  .sm-panel-list[data-numbering] .sm-panel-item::after {
+    right: 1.25em;
+    font-size: 14px;
+  }
+
+  .sm-panel-inner {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+/* ── Neutralize hover-only motion stuck on touch ───────────────────────── */
+@media (hover: none), (pointer: coarse) {
+  /* Image zoom / lift used on blog + notes cards */
+  [data-hover-media] {
+    transform: none !important;
+  }
+
+  [data-hover-arrow] {
+    transform: none !important;
+  }
+
+  /* Menu social sibling-dim stays sticky after tap */
+  .sm-socials-list:hover .sm-socials-link {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .sm-socials-link:hover {
+    color: inherit !important;
+  }
+
+  .sm-panel-item:hover {
+    color: inherit !important;
+  }
+}

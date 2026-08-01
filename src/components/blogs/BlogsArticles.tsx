@@ -1,12 +1,15 @@
 import { BlogArticleCard } from '@/components/blogs/BlogArticleCard';
-import { BLOG_GRID_NOTES } from '@/components/sections/notes.data';
+import { getBlogsPageNotes } from '@/lib/api';
 import { NAVBAR_HEIGHT } from '@/lib/constants';
 
 /**
  * Mist article grid curtain — lifts to reveal the sticky SiteFooter.
- * 2 columns × 4 rows.
+ * Excludes the featured (most recently published) hero post.
  */
-export function BlogsArticles() {
+export async function BlogsArticles() {
+  const { articles } = await getBlogsPageNotes();
+  const gridNotes = articles.slice(0, 8);
+
   return (
     <section
       data-blogs-articles
@@ -15,7 +18,7 @@ export function BlogsArticles() {
     >
       <div className="mx-auto w-full max-w-[1200px] px-gutter pb-24 md:pb-32">
         <div className="grid grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-2 md:gap-y-16">
-          {BLOG_GRID_NOTES.map((note) => (
+          {gridNotes.map((note) => (
             <BlogArticleCard key={note.slug} note={note} tone="light" />
           ))}
         </div>

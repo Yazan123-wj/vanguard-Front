@@ -9,10 +9,15 @@ import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { PROJECTS_TRANSITION_KEY } from '@/lib/constants';
 import { gsap } from '@/lib/gsap';
 
+type ProjectsCTAProps = {
+  /** Project thumbnails for the cursor trail (from the backend). */
+  trailImages?: string[];
+};
+
 /**
  * Post-stack invitation into the projects gallery.
  */
-export function ProjectsCTA() {
+export function ProjectsCTA({ trailImages }: ProjectsCTAProps) {
   const router = useRouter();
   const lenis = useLenis();
   const prefersReducedMotion = useReducedMotion();
@@ -116,6 +121,7 @@ export function ProjectsCTA() {
           </span>
           <span
             aria-hidden="true"
+            data-hover-arrow
             className="translate-y-px transition-transform duration-300 group-hover:translate-x-1"
           >
             →
@@ -123,7 +129,7 @@ export function ProjectsCTA() {
         </a>
       </div>
 
-      <ProjectsCursorTrail active={trailActive && !leaving} />
+      <ProjectsCursorTrail active={trailActive && !leaving} images={trailImages} />
     </section>
   );
 }

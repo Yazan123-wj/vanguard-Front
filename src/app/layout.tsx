@@ -1,10 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
-import { Loader } from '@/components/loader/Loader';
-import { Navbar } from '@/components/layout/Navbar';
-import { NavigationEffects } from '@/components/layout/NavigationEffects';
-import { SceneLayer } from '@/components/layout/SceneLayer';
+import { SiteChrome } from '@/components/layout/SiteChrome';
 import { SITE } from '@/lib/constants';
 import { AudioProvider } from '@/providers/AudioProvider';
 import { LoaderProvider } from '@/providers/LoaderProvider';
@@ -43,10 +40,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <SmoothScrollProvider>
             <LoaderProvider>
               <AudioProvider>
-                <Loader />
-                <NavigationEffects />
-                <SceneLayer />
-                <Navbar />
+                <SiteChrome />
                 {children}
               </AudioProvider>
             </LoaderProvider>

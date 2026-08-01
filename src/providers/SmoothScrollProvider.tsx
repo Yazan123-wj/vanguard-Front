@@ -3,6 +3,7 @@
 import 'lenis/dist/lenis.css';
 
 import Lenis from 'lenis';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 
 import { LenisContext } from '@/hooks/useLenis';
@@ -15,10 +16,13 @@ type SmoothScrollProviderProps = {
 
 export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
   const prefersReducedMotion = useReducedMotion();
+  const pathname = usePathname();
+  const isAdmin = pathname.startsWith('/admin');
   const [lenis, setLenis] = useState<Lenis | null>(null);
 
   useEffect(() => {
-    if (prefersReducedMotion) return;
+    // Admin uses native scroll; keep Lenis off so the CMS feels snappy.
+    if (prefersReducedMotion || isAdmin) return;
 
     const instance = new Lenis({
       lerp: 0.1,
@@ -55,9 +59,9 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
       instance.destroy();
       setLenis(null);
     };
-  }, [prefersReducedMotion]);
+  }, [prefersReducedMotion, isAdmin]);
 
-  if (prefersReducedMotion) {
+  if (prefersReducedMotion || isAdmin) {
     return <>{children}</>;
   }
 

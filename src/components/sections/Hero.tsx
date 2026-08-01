@@ -3,8 +3,8 @@ import { HeroHeadline } from '@/components/hero/HeroHeadline';
 import { NAVBAR_HEIGHT } from '@/lib/constants';
 
 const EYEBROW = 'BRANDING · WEB · MOTION · PRODUCT';
-const HEADLINE =
-  'Design and development partner for brands that refuse to blend in.';
+const HEADLINE_PREFIX =
+  'Design and development partner for brands that refuse to';
 const BODY =
   'Two senior teams with 15+ years of experience, collaborating with brands that refuse to blend in.';
 
@@ -28,7 +28,11 @@ export function Hero() {
           paddingTop: `calc(${NAVBAR_HEIGHT}px + var(--spacing-gutter) + 4rem)`,
         }}
       >
-        <HeroHeadline eyebrow={EYEBROW} headline={HEADLINE} body={BODY} />
+        <HeroHeadline
+          eyebrow={EYEBROW}
+          headlinePrefix={HEADLINE_PREFIX}
+          body={BODY}
+        />
       </div>
     </section>
   );

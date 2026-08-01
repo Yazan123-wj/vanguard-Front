@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 import { HeroAtmosphere } from '@/components/hero/HeroAtmosphere';
-import { NOTES } from '@/components/sections/notes.data';
+import { getNotes } from '@/lib/api';
 
 function ArrowIcon() {
   return (
@@ -22,7 +22,9 @@ function ArrowIcon() {
 /**
  * Studio notes curtain — dark articles panel that lifts to reveal the light footer.
  */
-export function NotesSection() {
+export async function NotesSection() {
+  const notes = await getNotes();
+
   return (
     <section
       data-notes
@@ -49,6 +51,7 @@ export function NotesSection() {
             </span>
             <span
               aria-hidden="true"
+              data-hover-arrow
               className="translate-y-px transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             >
               <ArrowIcon />
@@ -57,19 +60,22 @@ export function NotesSection() {
         </div>
 
         <div className="mt-14 grid grid-cols-1 gap-10 md:mt-16 md:grid-cols-3 md:gap-8">
-          {NOTES.slice(0, 3).map((note) => (
+          {notes.slice(0, 3).map((note) => (
             <article key={note.slug} className="flex flex-col">
               <Link
                 href={`/blogs/article?slug=${encodeURIComponent(note.slug)}`}
                 className="group flex flex-col"
               >
                 <div className="aspect-[4/5] overflow-hidden bg-ink-800">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={note.image}
-                    alt=""
-                    className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                  />
+                  {note.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      data-hover-media
+                      src={note.image}
+                      alt=""
+                      className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                    />
+                  ) : null}
                 </div>
 
                 <div className="mt-5 flex items-center gap-3 font-mono text-[10px] tracking-[0.16em] text-ink-200 uppercase">

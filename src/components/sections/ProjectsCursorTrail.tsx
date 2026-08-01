@@ -3,27 +3,40 @@
 import { useEffect, useRef } from 'react';
 
 import { projects } from '@/components/projects/legacy/data';
+import { useCanHover } from '@/hooks/useCanHover';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { gsap } from '@/lib/gsap';
 
 const TRAIL_COUNT = 10;
 const SPAWN_DISTANCE = 56;
-const IMAGE_URLS = projects.slice(0, TRAIL_COUNT).map((project) => project.image);
+const FALLBACK_IMAGE_URLS = projects
+  .slice(0, TRAIL_COUNT)
+  .map((project) => project.image);
 
 type ProjectsCursorTrailProps = {
   active: boolean;
+  /** Project thumbnails from the backend — falls back to bundled content. */
+  images?: string[];
 };
 
 /**
  * Project thumbnails that bloom around the cursor while the CTA section is hovered.
  */
-export function ProjectsCursorTrail({ active }: ProjectsCursorTrailProps) {
+export function ProjectsCursorTrail({
+  active,
+  images,
+}: ProjectsCursorTrailProps) {
+  const imageUrls =
+    images && images.length > 0
+      ? images.slice(0, TRAIL_COUNT)
+      : FALLBACK_IMAGE_URLS;
   const layerRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
+  const canHover = useCanHover();
 
   useEffect(() => {
     const layer = layerRef.current;
-    if (!layer || prefersReducedMotion || !active) return;
+    if (!layer || prefersReducedMotion || !canHover || !active) return;
 
     const cards = Array.from(
       layer.querySelectorAll<HTMLElement>('[data-trail-card]'),
@@ -135,9 +148,9 @@ export function ProjectsCursorTrail({ active }: ProjectsCursorTrailProps) {
       section?.removeEventListener('pointerleave', onLeave);
       gsap.killTweensOf(cards);
     };
-  }, [active, prefersReducedMotion]);
+  }, [active, prefersReducedMotion, canHover]);
 
-  if (prefersReducedMotion) return null;
+  if (prefersReducedMotion || !canHover) return null;
 
   return (
     <div
@@ -145,7 +158,7 @@ export function ProjectsCursorTrail({ active }: ProjectsCursorTrailProps) {
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 z-30 overflow-hidden"
     >
-      {IMAGE_URLS.map((src, i) => (
+      {imageUrls.map((src, i) => (
         <div
           key={`${src}-${i}`}
           data-trail-card

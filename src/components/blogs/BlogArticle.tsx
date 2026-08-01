@@ -41,12 +41,14 @@ export function BlogArticle({ note }: BlogArticleProps) {
 
         {/* Full content-width image (same as blogs hero featured). */}
         <div className="mt-10 aspect-[16/9] w-full overflow-hidden bg-mist md:mt-12 md:aspect-[2/1]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={note.image}
-            alt=""
-            className="h-full w-full object-cover"
-          />
+          {note.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={note.image}
+              alt=""
+              className="h-full w-full object-cover"
+            />
+          ) : null}
         </div>
 
         {/* Text matches the image width. */}

@@ -5,8 +5,17 @@ import { NotesSection } from '@/components/sections/NotesSection';
 import { Partner } from '@/components/sections/Partner';
 import { ProjectsCTA } from '@/components/sections/ProjectsCTA';
 import { StackCards } from '@/components/sections/StackCards';
+import { getGalleryProjects, getHomeServices } from '@/lib/api';
 
-export default function Home() {
+export default async function Home() {
+  const [homeServices, galleryProjects] = await Promise.all([
+    getHomeServices(),
+    getGalleryProjects(),
+  ]);
+  const trailImages = galleryProjects
+    .map((project) => project.image)
+    .filter(Boolean);
+
   return (
     <main tabIndex={-1}>
       {/*
@@ -16,30 +25,51 @@ export default function Home() {
         Trailing 100dvh lets the curtain fully clear before cards begin.
         After the last card, Partner + deck exit upward, then ProjectsCTA.
       */}
-      <div className="relative bg-mist">
+      <div data-home-mist className="relative bg-mist">
         <Partner />
         <Hero />
-        <div aria-hidden="true" className="pointer-events-none h-dvh" />
-        <StackCards />
+        {/* Desktop curtain clearance — hidden on mobile (see mobile.css). */}
+        <div
+          aria-hidden="true"
+          data-curtain-spacer
+          className="pointer-events-none h-dvh"
+        />
+        <div id="services">
+          <StackCards cards={homeServices} />
+        </div>
       </div>
 
       {/*
         Projects CTA mist curtain over AboutReveal (title + process cards).
         Same sticky reveal as Hero → Partner.
+        Mobile: flattened sequential sections (see mobile.css).
       */}
-      <div className="relative" style={{ backgroundColor: '#0A0A0A' }}>
+      <div
+        data-home-about
+        className="relative"
+        style={{ backgroundColor: '#0A0A0A' }}
+      >
         <AboutReveal />
-        <ProjectsCTA />
-        <div aria-hidden="true" className="pointer-events-none h-dvh" />
+        <ProjectsCTA trailImages={trailImages} />
+        <div
+          aria-hidden="true"
+          data-curtain-spacer
+          className="pointer-events-none h-dvh"
+        />
       </div>
 
       {/*
         Notes articles curtain over the light SiteFooter.
+        Mobile: flattened sequential sections (see mobile.css).
       */}
-      <div className="relative bg-paper">
+      <div data-home-footer className="relative bg-paper">
         <SiteFooter />
         <NotesSection />
-        <div aria-hidden="true" className="pointer-events-none h-dvh" />
+        <div
+          aria-hidden="true"
+          data-curtain-spacer
+          className="pointer-events-none h-dvh"
+        />
       </div>
     </main>
   );

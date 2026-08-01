@@ -3,7 +3,10 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
-import { projects } from '@/components/projects/legacy/data';
+import {
+  projects as fallbackProjects,
+  type GalleryProject,
+} from '@/components/projects/legacy/data';
 import { initSphericalGallery } from '@/components/projects/legacy/sphericalGalleryEngine';
 import { useLenis } from '@/hooks/useLenis';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
@@ -37,10 +40,19 @@ function ensureGalleryFonts() {
   document.head.append(preconnectA, preconnectB, link);
 }
 
+type ProjectsExperienceProps = {
+  /** Projects from the backend — falls back to bundled content. */
+  projects?: GalleryProject[];
+};
+
 /**
  * Exact spherical gallery from the scratch prototype, mounted under Vanguard’s navbar.
  */
-export function ProjectsExperience() {
+export function ProjectsExperience({
+  projects: projectsProp,
+}: ProjectsExperienceProps) {
+  const projects =
+    projectsProp && projectsProp.length > 0 ? projectsProp : fallbackProjects;
   const lenis = useLenis();
   const prefersReducedMotion = useReducedMotion();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -73,9 +85,9 @@ export function ProjectsExperience() {
     const root = rootRef.current;
     if (!root) return;
 
-    const dispose = initSphericalGallery(root);
+    const dispose = initSphericalGallery(root, projects);
     return () => dispose();
-  }, [webgl]);
+  }, [webgl, projects]);
 
   useEffect(() => {
     const veil = veilRef.current;
@@ -176,7 +188,7 @@ export function ProjectsExperience() {
         </div>
 
         <div className="interaction-hint mono-text">
-          <span>HOLD & DRAG TO EXPLORE SPHERE</span>
+          <span>DRAG · SCROLL · SWIPE TO EXPLORE</span>
         </div>
 
         <div
@@ -238,20 +250,20 @@ export function ProjectsExperience() {
 
             <div className="detail-body">
               <div className="detail-left">
-                <p className="detail-lead">
-                  An immersive, state-of-the-art interactive campaign pushing the boundaries of
-                  technology and creativity to tell a compelling brand story.
+                <p id="detail-lead" className="detail-lead">
+                  Project overview
                 </p>
               </div>
               <div className="detail-right">
-                <p>
-                  We partnered with the client to conceptualize, design, and engineer a unique digital
-                  ecosystem. By blending high-performance 3D animations, custom shader effects, and an
-                  intuitive user interface, we crafted an award-winning digital experience that drives
-                  massive engagement and positions them as pioneers in their field.
-                </p>
+                <p id="detail-desc">Project description</p>
                 <div className="detail-actions">
-                  <a href="#" target="_blank" className="btn btn-secondary mono-text" rel="noreferrer">
+                  <a
+                    id="detail-visit"
+                    href="#"
+                    target="_blank"
+                    className="btn btn-secondary mono-text"
+                    rel="noreferrer"
+                  >
                     VISIT LIVE SITE
                   </a>
                 </div>

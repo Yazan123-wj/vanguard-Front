@@ -3,10 +3,13 @@ export const SITE = {
   title: 'Vanguard',
   description: 'Vanguard — production website.',
   url: 'https://vanguard.example.com',
+  logo: '/brand/vanguard-logo.png',
+  mark: '/brand/vanguard-mark.png',
 } as const;
 
 export const NAV_LINKS = [
   { label: 'Home', href: '/' },
+  { label: 'Services', href: '/services' },
   { label: 'Projects', href: '/projects' },
   { label: 'Blogs', href: '/blogs' },
   { label: 'Contact', href: '/contact' },

@@ -3,21 +3,31 @@
 import { useSiteAudio } from '@/providers/AudioProvider';
 
 /**
- * Navbar mute / unmute control for the ambient bed.
+ * Ambient mute control. Icon follows real audibility when preference is on
+ * but the browser hasn't unlocked playback yet — so it never lies.
  */
 export function AudioToggle() {
-  const { muted, toggleMute } = useSiteAudio();
+  const { muted, audible, toggleMute } = useSiteAudio();
+  // Preference defaults to ON — show the speaker as on unless the user muted.
+  // First click while silent unlocks playback (browser autoplay rules).
+  const showMuted = muted;
 
   return (
     <button
       type="button"
       onClick={toggleMute}
-      aria-label={muted ? 'Unmute ambient sound' : 'Mute ambient sound'}
-      aria-pressed={!muted}
-      title={muted ? 'Sound on' : 'Mute'}
-      className="flex size-10 items-center justify-center rounded-full bg-ink-700 text-ink-200 transition-colors duration-300 hover:text-paper"
+      aria-label={
+        showMuted
+          ? 'Turn ambient sound on'
+          : audible
+            ? 'Mute ambient sound'
+            : 'Enable ambient sound'
+      }
+      aria-pressed={!showMuted}
+      title={showMuted ? 'Sound on' : audible ? 'Mute' : 'Sound on'}
+      className="flex size-11 items-center justify-center rounded-full bg-ink-700 text-ink-200 transition-colors duration-300 hover:text-paper md:size-10"
     >
-      {muted ? (
+      {showMuted ? (
         <svg
           width="18"
           height="18"

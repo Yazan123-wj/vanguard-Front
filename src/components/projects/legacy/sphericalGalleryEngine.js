@@ -1,8 +1,12 @@
 import * as THREE from 'three';
 import { gsap } from 'gsap';
-import { projects } from './data';
+import { projects as fallbackProjects } from './data';
 
-export function initSphericalGallery(root) {
+export function initSphericalGallery(root, galleryProjects) {
+const projects =
+  Array.isArray(galleryProjects) && galleryProjects.length > 0
+    ? galleryProjects
+    : fallbackProjects;
 // Elements (scoped to gallery root)
 const container = root.querySelector('#canvas-container');
 const soundToggle = root.querySelector('#sound-toggle');
@@ -18,6 +22,9 @@ const detailTitle = root.querySelector('#detail-title');
 const detailYear = root.querySelector('#detail-year');
 const detailTags = root.querySelector('#detail-tags');
 const detailGallery = root.querySelector('#detail-gallery');
+const detailLead = root.querySelector('#detail-lead');
+const detailDesc = root.querySelector('#detail-desc');
+const detailVisit = root.querySelector('#detail-visit');
 
 let rafId = 0;
 let clockTimer = 0;
@@ -33,6 +40,7 @@ let previousPointerX = 0, previousPointerY = 0;
 let targetRotationX = 0, targetRotationY = 0;
 let currentRotationX = 0, currentRotationY = 0;
 const dragSensitivity = 0.0015;
+const wheelSensitivity = 0.00135;
 const easeFactor = 0.08; // Lerp factor for drag momentum
 const sphereRadius = 1000;
 let raycaster, mouse;
@@ -305,12 +313,13 @@ function createSphericalGallery() {
   // Distort Plane to Spherical surface geometry
   const curvedGeom = createCurvedGeometry(cardWidth, cardHeight, sphereRadius);
 
-  // Distribute projects around the sphere equator
-  // We have 32 projects in data.
-  const totalCards = Math.min(projects.length, columns * rows);
+  // Fill the full sphere grid; repeat projects when there are fewer than slots
+  // so drag always reveals work instead of empty arcs.
+  const capacity = columns * rows;
+  const totalCards = projects.length === 0 ? 0 : capacity;
 
   for (let i = 0; i < totalCards; i++) {
-    const project = projects[i];
+    const project = projects[i % projects.length];
     
     // Grid coordinates
     const colIndex = i % columns;
@@ -395,17 +404,43 @@ function createSphericalGallery() {
   });
 }
 
+function isDetailOpen() {
+  return Boolean(detailOverlay?.classList.contains('active'));
+}
+
+function applyOrbitDelta(dx, dy, sensitivity) {
+  if (currentLayout === 'sphere') {
+    targetRotationY += dx * sensitivity;
+    targetRotationX += dy * sensitivity;
+
+    // Clamp vertical rotation to avoid flipping the sphere upside down
+    const xLimit = Math.PI * 0.22; // ~40 degrees limit up and down
+    targetRotationX = Math.max(-xLimit, Math.min(xLimit, targetRotationX));
+    return;
+  }
+
+  // Grid panning
+  targetGroupPositionX += dx * gridPanSensitivity;
+  targetGroupPositionY -= dy * gridPanSensitivity;
+
+  const xMaxPan = 1500;
+  const yMaxPan = 800;
+  targetGroupPositionX = Math.max(-xMaxPan, Math.min(xMaxPan, targetGroupPositionX));
+  targetGroupPositionY = Math.max(-yMaxPan, Math.min(yMaxPan, targetGroupPositionY));
+}
+
 // 7. Interaction Event Listeners
 function setupEvents() {
-  // Dragging Rotation Events (Mouse)
-  window.addEventListener('mousedown', onPointerDown);
-  window.addEventListener('mousemove', onPointerMove);
-  window.addEventListener('mouseup', onPointerUp);
+  const dragTarget = root;
 
-  // Touch Events for Mobile support
-  window.addEventListener('touchstart', onPointerDown, { passive: false });
-  window.addEventListener('touchmove', onPointerMove, { passive: false });
-  window.addEventListener('touchend', onPointerUp);
+  // Unified pointer events (mouse + touch + pen)
+  dragTarget.addEventListener('pointerdown', onPointerDown);
+  window.addEventListener('pointermove', onPointerMove, { passive: false });
+  window.addEventListener('pointerup', onPointerUp);
+  window.addEventListener('pointercancel', onPointerUp);
+
+  // Touchpad / mouse wheel orbit (and grid pan)
+  dragTarget.addEventListener('wheel', onWheel, { passive: false });
 
   // Click Event
   window.addEventListener('click', onClick);
@@ -413,65 +448,86 @@ function setupEvents() {
   // Layout Grid Toggle Button
   const gridToggleBtn = root.querySelector('#grid-toggle-btn');
   gridToggleBtn.addEventListener('click', toggleLayout);
+
+  cleanups.push(() => {
+    dragTarget.removeEventListener('pointerdown', onPointerDown);
+    window.removeEventListener('pointermove', onPointerMove);
+    window.removeEventListener('pointerup', onPointerUp);
+    window.removeEventListener('pointercancel', onPointerUp);
+    dragTarget.removeEventListener('wheel', onWheel);
+    window.removeEventListener('click', onClick);
+    gridToggleBtn?.removeEventListener('click', toggleLayout);
+  });
 }
 
 function onPointerDown(e) {
-  if (isAnimating) return;
-  
+  if (isAnimating || isDetailOpen()) return;
+  // Ignore UI chrome clicks (sound, grid toggle, links)
+  if (e.target?.closest?.('button, a, input, textarea, .detail-overlay')) return;
+
   isDragging = true;
   idleTime = 0;
-  
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  
-  pointerX = clientX;
-  pointerY = clientY;
-  previousPointerX = clientX;
-  previousPointerY = clientY;
+
+  pointerX = e.clientX;
+  pointerY = e.clientY;
+  previousPointerX = e.clientX;
+  previousPointerY = e.clientY;
+
+  try {
+    e.currentTarget?.setPointerCapture?.(e.pointerId);
+  } catch {
+    // ignore
+  }
 }
 
 function onPointerMove(e) {
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const clientX = e.clientX;
+  const clientY = e.clientY;
 
   // 1. Handle dragging rotation or grid panning
-  if (isDragging && !isAnimating) {
+  if (isDragging && !isAnimating && !isDetailOpen()) {
     const dx = clientX - pointerX;
     const dy = clientY - pointerY;
-    
-    if (currentLayout === 'sphere') {
-      targetRotationY += dx * dragSensitivity;
-      targetRotationX += dy * dragSensitivity;
-      
-      // Clamp vertical rotation to avoid flipping the sphere upside down
-      const xLimit = Math.PI * 0.22; // ~40 degrees limit up and down
-      targetRotationX = Math.max(-xLimit, Math.min(xLimit, targetRotationX));
-    } else {
-      // Grid panning
-      targetGroupPositionX += dx * gridPanSensitivity;
-      targetGroupPositionY -= dy * gridPanSensitivity; // reverse dy for standard scroll feel
-      
-      // Clamp panning boundaries
-      const xMaxPan = 1500;
-      const yMaxPan = 800;
-      targetGroupPositionX = Math.max(-xMaxPan, Math.min(xMaxPan, targetGroupPositionX));
-      targetGroupPositionY = Math.max(-yMaxPan, Math.min(yMaxPan, targetGroupPositionY));
-    }
-    
+    applyOrbitDelta(dx, dy, dragSensitivity);
     pointerX = clientX;
     pointerY = clientY;
+
+    // Stop browser scroll/bounce while fingering the sphere
+    if (e.cancelable && e.pointerType === 'touch') {
+      e.preventDefault();
+    }
   }
-  
+
   // 2. Setup mouse coordinates for raycasting hover
   mouse.x = (clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(clientY / window.innerHeight) * 2 + 1;
-  
+
   previousPointerX = clientX;
   previousPointerY = clientY;
 }
 
 function onPointerUp() {
   isDragging = false;
+}
+
+function onWheel(e) {
+  if (isAnimating || isDetailOpen()) return;
+
+  e.preventDefault();
+  idleTime = 0;
+
+  // Normalize line/page deltas to pixel-ish units
+  let { deltaX, deltaY } = e;
+  if (e.deltaMode === 1) {
+    deltaX *= 16;
+    deltaY *= 16;
+  } else if (e.deltaMode === 2) {
+    deltaX *= window.innerWidth;
+    deltaY *= window.innerHeight;
+  }
+
+  // Match drag feel: trackpad swipe / wheel moves the sphere
+  applyOrbitDelta(-deltaX, -deltaY, wheelSensitivity);
 }
 
 // Raycaster check for card click
@@ -668,6 +724,24 @@ function showDetailOverlay(project) {
     span.textContent = tag;
     detailTags.appendChild(span);
   });
+
+  // Left = overview (lead). Right = description. Never duplicate one into the other.
+  if (detailLead) {
+    detailLead.textContent = (project.overview || '').trim();
+  }
+  if (detailDesc) {
+    detailDesc.textContent = (project.description || '').trim();
+  }
+
+  // Visit live site button — hidden unless the project has an external link.
+  if (detailVisit) {
+    if (project.externalUrl) {
+      detailVisit.href = project.externalUrl;
+      detailVisit.style.display = '';
+    } else {
+      detailVisit.style.display = 'none';
+    }
+  }
   
   // Build detail image stack (image + optional images[])
   if (detailGallery) {

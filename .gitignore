@@ -1,6 +1,7 @@
 # Python
 .venv/
 venv/
+backend-venv/
 __pycache__/
 *.pyc
 
@@ -11,11 +12,20 @@ __pycache__/
 # Django
 db.sqlite3
 staticfiles/
+backend/media/
+
+# Next.js
+.next/
+tsconfig.tsbuildinfo
+next-env.d.ts
 
 # Frontend
 node_modules/
 dist/
 build/
+
+# Backend lives in a separate repo
+backend/
 
 # macOS
 .DS_Store

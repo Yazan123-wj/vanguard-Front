@@ -10,8 +10,9 @@ export function GalleryChrome() {
         <span>Selected Work</span>
       </div>
 
-      <p className="absolute bottom-6 left-6 font-mono text-[10px] tracking-[0.16em] text-paper/40 uppercase md:bottom-8 md:left-8">
-        Drag to explore
+      <p className="absolute bottom-6 left-6 max-w-[calc(100%-3rem)] font-mono text-[10px] tracking-[0.16em] text-paper/40 uppercase md:bottom-8 md:left-8">
+        <span className="md:hidden">Drag · swipe to explore</span>
+        <span className="hidden md:inline">Drag to explore</span>
       </p>
     </div>
   );

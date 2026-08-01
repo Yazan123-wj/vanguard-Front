@@ -15,11 +15,12 @@ const Scene = dynamic(
  */
 export function SceneLayer() {
   const pathname = usePathname();
-  const onProjects = pathname.startsWith('/projects');
-  const [ready, setReady] = useState(!onProjects);
+  const skipScene =
+    pathname.startsWith('/projects') || pathname.startsWith('/admin');
+  const [ready, setReady] = useState(!skipScene);
 
   useEffect(() => {
-    if (onProjects) {
+    if (skipScene) {
       setReady(false);
       return;
     }
@@ -30,9 +31,9 @@ export function SceneLayer() {
       setReady(true);
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [onProjects]);
+  }, [skipScene]);
 
-  if (onProjects || !ready) {
+  if (skipScene || !ready) {
     return null;
   }
 

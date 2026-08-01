@@ -44,12 +44,15 @@ export function BlogArticleCard({
         }`}
       >
         <div className="aspect-square overflow-hidden bg-ink-800">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={note.image}
-            alt=""
-            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-          />
+          {note.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={note.image}
+              alt=""
+              data-hover-media
+              className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+            />
+          ) : null}
         </div>
 
         <div

@@ -1,8 +1,12 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 import { HEADLINE_STAGGER } from '@/components/hero/hero.constants';
+import {
+  HERO_ROTATING_PHRASES,
+  HeroRotatingPhrase,
+} from '@/components/hero/HeroRotatingPhrase';
 import { HeroTrustedBy } from '@/components/hero/HeroTrustedBy';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { gsap, SplitText, useGSAP } from '@/lib/gsap';
@@ -10,50 +14,96 @@ import { useLoader } from '@/providers/LoaderProvider';
 
 type HeroHeadlineProps = {
   eyebrow: string;
-  headline: string;
+  /** Static lead-in that ends before the rotating phrase. */
+  headlinePrefix: string;
   body: string;
+  phrases?: readonly string[];
 };
 
-export function HeroHeadline({ eyebrow, headline, body }: HeroHeadlineProps) {
+/** Survives Strict Mode remounts so the entrance never plays twice. */
+let heroEntrancePlayed = false;
+
+export function HeroHeadline({
+  eyebrow,
+  headlinePrefix,
+  body,
+  phrases = HERO_ROTATING_PHRASES,
+}: HeroHeadlineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const eyebrowRef = useRef<HTMLParagraphElement>(null);
   const headlineRef = useRef<HTMLHeadingElement>(null);
+  const prefixRef = useRef<HTMLSpanElement>(null);
+  const phraseRef = useRef<HTMLSpanElement>(null);
   const bodyRef = useRef<HTMLParagraphElement>(null);
   const trustedRef = useRef<HTMLDivElement>(null);
 
   const prefersReducedMotion = useReducedMotion();
-  const { registerOnComplete, isLoading } = useLoader();
+  const { registerOnComplete } = useLoader();
+  const [phraseActive, setPhraseActive] = useState(heroEntrancePlayed);
 
   useGSAP(
     () => {
       const eyebrowEl = eyebrowRef.current;
       const headlineEl = headlineRef.current;
+      const prefixEl = prefixRef.current;
+      const phraseEl = phraseRef.current;
       const bodyEl = bodyRef.current;
       const trustedEl = trustedRef.current;
-      if (!eyebrowEl || !headlineEl || !bodyEl || !trustedEl) return;
+      if (
+        !eyebrowEl ||
+        !headlineEl ||
+        !prefixEl ||
+        !phraseEl ||
+        !bodyEl ||
+        !trustedEl
+      ) {
+        return;
+      }
 
-      if (prefersReducedMotion) {
-        gsap.set([eyebrowEl, headlineEl, bodyEl, trustedEl], { opacity: 1 });
+      const showFinal = () => {
+        gsap.set(eyebrowEl, { opacity: 1, letterSpacing: '0.14em' });
+        gsap.set(headlineEl, { opacity: 1 });
+        gsap.set(phraseEl, { opacity: 1, yPercent: 0 });
+        gsap.set([bodyEl, trustedEl], { opacity: 1, y: 0 });
+        setPhraseActive(true);
+      };
+
+      if (prefersReducedMotion || heroEntrancePlayed) {
+        showFinal();
         return;
       }
 
       let split: SplitText | null = null;
-      let entranceDone = false;
-      let entranceRequested = false;
       let cancelled = false;
+      let pendingHandoff = false;
       let timeline: gsap.core.Timeline | null = null;
 
+      // Stay fully invisible until the entrance timeline starts.
       gsap.set(eyebrowEl, { opacity: 0, letterSpacing: '0.4em' });
+      gsap.set(headlineEl, { opacity: 0 });
+      gsap.set(phraseEl, { opacity: 0, yPercent: 24 });
       gsap.set([bodyEl, trustedEl], { opacity: 0, y: 16 });
 
       const runEntrance = () => {
-        if (cancelled || entranceDone || !split) {
-          entranceRequested = true;
+        if (cancelled || heroEntrancePlayed) return;
+        if (!split) {
+          pendingHandoff = true;
           return;
         }
-        entranceDone = true;
 
-        timeline = gsap.timeline();
+        heroEntrancePlayed = true;
+
+        // Reveal the headline shell only once lines are parked offstage.
+        gsap.set(headlineEl, { opacity: 1 });
+        gsap.set(split.lines, { yPercent: 110 });
+        gsap.set(phraseEl, { opacity: 0, yPercent: 24 });
+
+        timeline = gsap.timeline({
+          onComplete: () => {
+            if (!cancelled) setPhraseActive(true);
+          },
+        });
+
         timeline.to(eyebrowEl, {
           opacity: 1,
           letterSpacing: '0.14em',
@@ -71,6 +121,16 @@ export function HeroHeadline({ eyebrow, headline, body }: HeroHeadlineProps) {
           '-=0.2',
         );
         timeline.to(
+          phraseEl,
+          {
+            opacity: 1,
+            yPercent: 0,
+            duration: 0.85,
+            ease: 'vanguard.expo',
+          },
+          '-=0.7',
+        );
+        timeline.to(
           bodyEl,
           { opacity: 1, y: 0, duration: 0.7, ease: 'vanguard.out' },
           '-=0.45',
@@ -82,48 +142,39 @@ export function HeroHeadline({ eyebrow, headline, body }: HeroHeadlineProps) {
         );
       };
 
-      const doSplit = () => {
-        split?.revert();
-        split = SplitText.create(headlineEl, {
+      const prepareSplit = () => {
+        if (cancelled || split || heroEntrancePlayed) return;
+
+        // Build SplitText while the headline is still opacity 0 — no flash.
+        split = SplitText.create(prefixEl, {
           type: 'lines',
           mask: 'lines',
           linesClass: 'hero-line',
         });
-        gsap.set(headlineEl, { opacity: 1 });
-        gsap.set(split.lines, { yPercent: entranceDone ? 0 : 110 });
+        gsap.set(split.lines, { yPercent: 110 });
+
+        if (pendingHandoff) runEntrance();
       };
 
-      document.fonts.ready.then(() => {
+      void document.fonts.ready.then(() => {
         if (cancelled) return;
-        doSplit();
-        if (entranceRequested) runEntrance();
+        prepareSplit();
       });
 
-      const unsubscribe = isLoading ? registerOnComplete(runEntrance) : null;
-      if (!isLoading) {
-        entranceRequested = true;
-      }
-
-      let resizeTimer = 0;
-      const onResize = () => {
-        window.clearTimeout(resizeTimer);
-        resizeTimer = window.setTimeout(() => {
-          if (cancelled || !split) return;
-          doSplit();
-        }, 200);
-      };
-      window.addEventListener('resize', onResize);
+      const unsubscribe = registerOnComplete(runEntrance);
 
       return () => {
         cancelled = true;
-        window.clearTimeout(resizeTimer);
-        window.removeEventListener('resize', onResize);
-        unsubscribe?.();
+        unsubscribe();
         timeline?.kill();
-        split?.revert();
+        // Only revert if the entrance never played — avoids a mid-animation flash
+        // when React Strict Mode remounts before handoff.
+        if (!heroEntrancePlayed) {
+          split?.revert();
+        }
       };
     },
-    { scope: containerRef, dependencies: [prefersReducedMotion, isLoading] },
+    { scope: containerRef, dependencies: [prefersReducedMotion] },
   );
 
   return (
@@ -133,6 +184,7 @@ export function HeroHeadline({ eyebrow, headline, body }: HeroHeadlineProps) {
     >
       <p
         ref={eyebrowRef}
+        data-hero-eyebrow
         className="mb-6 whitespace-nowrap font-mono text-[11px] tracking-[0.16em] text-ink-200 opacity-0 md:mb-8 md:text-[12px]"
       >
         {eyebrow}
@@ -140,9 +192,15 @@ export function HeroHeadline({ eyebrow, headline, body }: HeroHeadlineProps) {
 
       <h1
         ref={headlineRef}
-        className="hero-headline font-display w-full max-w-[14ch] text-display font-semibold leading-[1.05] tracking-[-0.03em] text-paper opacity-0"
+        className="hero-headline font-display w-full max-w-[18ch] text-display font-semibold leading-[1.05] tracking-[-0.03em] text-paper opacity-0"
       >
-        {headline}
+        <span ref={prefixRef}>{headlinePrefix}</span>
+        <span
+          ref={phraseRef}
+          className="mx-auto mt-[0.02em] block w-max max-w-none overflow-visible leading-none whitespace-nowrap"
+        >
+          <HeroRotatingPhrase phrases={phrases} active={phraseActive} />
+        </span>
       </h1>
 
       <p

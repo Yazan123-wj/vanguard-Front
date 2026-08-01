@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { BlogArticle } from '@/components/blogs/BlogArticle';
-import { getNoteBySlug } from '@/components/sections/notes.data';
+import { getNoteBySlug } from '@/lib/api';
 
 type Props = {
   searchParams: Promise<{ slug?: string }>;
@@ -12,7 +12,7 @@ export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
   const { slug } = await searchParams;
-  const note = slug ? getNoteBySlug(slug) : undefined;
+  const note = slug ? await getNoteBySlug(slug) : undefined;
   if (!note) return { title: 'Article' };
 
   return {
@@ -23,7 +23,7 @@ export async function generateMetadata({
 
 export default async function BlogArticleQueryPage({ searchParams }: Props) {
   const { slug } = await searchParams;
-  const note = slug ? getNoteBySlug(slug) : undefined;
+  const note = slug ? await getNoteBySlug(slug) : undefined;
 
   if (!note) {
     notFound();

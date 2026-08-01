@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import {
   createContext,
   useCallback,
@@ -36,13 +37,24 @@ type LoaderProviderProps = {
 };
 
 export function LoaderProvider({ children }: LoaderProviderProps) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
+  const pathname = usePathname();
+  const isAdmin = pathname.startsWith('/admin');
+  const [isLoading, setIsLoading] = useState(!isAdmin);
+  const [progress, setProgress] = useState(isAdmin ? 100 : 0);
   const listenersRef = useRef(new Set<() => void>());
-  const handoffFiredRef = useRef(false);
+  const handoffFiredRef = useRef(isAdmin);
 
-  // Full loader on every load / refresh; always start at the top.
+  // Full loader on public loads / refresh; always start at the top.
+  // Admin never waits on the marketing loader.
   useEffect(() => {
+    if (isAdmin) {
+      setIsLoading(false);
+      setProgress(100);
+      handoffFiredRef.current = true;
+      document.body.style.overflow = '';
+      return;
+    }
+
     try {
       sessionStorage.removeItem('vanguard-loader-seen');
     } catch {
@@ -53,7 +65,7 @@ export function LoaderProvider({ children }: LoaderProviderProps) {
       history.scrollRestoration = 'manual';
     }
     window.scrollTo(0, 0);
-  }, []);
+  }, [isAdmin]);
 
   const registerOnComplete = useCallback((callback: () => void) => {
     if (handoffFiredRef.current) {
@@ -82,15 +94,22 @@ export function LoaderProvider({ children }: LoaderProviderProps) {
 
   const value = useMemo(
     () => ({
-      isLoading,
-      progress,
-      skipFullLoader: false,
+      isLoading: isAdmin ? false : isLoading,
+      progress: isAdmin ? 100 : progress,
+      skipFullLoader: isAdmin,
       setProgress,
       complete,
       dispatchHandoff,
       registerOnComplete,
     }),
-    [complete, dispatchHandoff, isLoading, progress, registerOnComplete],
+    [
+      complete,
+      dispatchHandoff,
+      isAdmin,
+      isLoading,
+      progress,
+      registerOnComplete,
+    ],
   );
 
   return (
