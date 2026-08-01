@@ -192,7 +192,7 @@ export function HeroHeadline({
 
       <h1
         ref={headlineRef}
-        className="hero-headline font-display w-full max-w-[18ch] text-display font-semibold leading-[1.05] tracking-[-0.03em] text-paper opacity-0"
+        className="hero-headline font-display w-full max-w-[16ch] text-display font-semibold leading-[1.08] tracking-[-0.03em] text-paper opacity-0"
       >
         <span ref={prefixRef}>{headlinePrefix}</span>
         <span
