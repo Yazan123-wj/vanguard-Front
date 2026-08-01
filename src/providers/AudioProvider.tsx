@@ -169,8 +169,9 @@ export function AudioProvider({ children }: AudioProviderProps) {
     audio.loop = true;
     audio.preload = 'auto';
     audio.volume = PLAY_VOLUME;
-    audio.playsInline = true;
+    // iOS inline playback — attribute only (not on HTMLAudioElement typings).
     audio.setAttribute('playsinline', '');
+    audio.setAttribute('webkit-playsinline', '');
     audioRef.current = audio;
 
     const markReady = () => setReady(true);
