@@ -33,3 +33,5 @@ backend/
 # Editors
 .vscode/
 .idea/
+.vercel
+.env*
